@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.1.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.1.0 http://maven.apache.org/xsd/maven-4.1.0.xsd">
+    <modelVersion>4.1.0</modelVersion>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -52,7 +52,7 @@
         <java.version>21</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <maven.version>3.6.3</maven.version>
+        <maven.version>4.0.0-rc-5</maven.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- Third-Party Dependencies -->
@@ -254,19 +254,8 @@
         </dependency>
 
         <!-- For Slf4j -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
 
         <!-- For Slf4j Simple -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>${slf4j.version}</version>
-            <scope>test</scope>
-        </dependency>
 
         <!-- For Spring Boot -->
         <dependency>
@@ -316,107 +305,45 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <!-- For Commons IO -->
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commons-io.version}</version>
-        </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.opensaml/opensaml-core -->
-        <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-core</artifactId>
-        </dependency>
+
         <!-- https://mvnrepository.com/artifact/net.shibboleth.utilities/java-support -->
-        <dependency>
-            <groupId>net.shibboleth.utilities</groupId>
-            <artifactId>java-support</artifactId>
-        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.opensaml/opensaml-messaging-api -->
-        <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-messaging-api</artifactId>
-        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.opensaml/opensaml-messaging-impl -->
-        <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-messaging-impl</artifactId>
-        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.opensaml/opensaml-profile-api -->
-        <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-profile-api</artifactId>
-        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.opensaml/opensaml-profile-impl -->
-        <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-profile-impl</artifactId>
-        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.opensaml/opensaml-saml-api -->
-        <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-saml-api</artifactId>
-        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.opensaml/opensaml-saml-impl -->
-        <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-saml-impl</artifactId>
-        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.opensaml/opensaml-security-api -->
-        <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-security-api</artifactId>
-        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.opensaml/opensaml-security-impl -->
-        <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-security-impl</artifactId>
-        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.opensaml/opensaml-soap-api -->
-        <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-soap-api</artifactId>
-        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.opensaml/opensaml-soap-impl -->
-        <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-soap-impl</artifactId>
-        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.opensaml/opensaml-storage-api -->
-        <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-storage-api</artifactId>
-        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.opensaml/opensaml-storage-impl -->
-        <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-storage-impl</artifactId>
-        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.opensaml/opensaml-xacml-saml-api -->
-        <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-xacml-saml-api</artifactId>
-        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.opensaml/opensaml-xacml-saml-impl -->
-        <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-xacml-saml-impl</artifactId>
-        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.opensaml/opensaml-xmlsec-api -->
-        <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-xmlsec-api</artifactId>
-        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.opensaml/opensaml-xmlsec-impl -->
-        <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-xmlsec-impl</artifactId>
-        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.opensaml/xmltooling -->
-        <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>xmltooling</artifactId>
-        </dependency>
+
         <!-- For Guava -->
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -437,11 +364,7 @@
         </dependency>
 
         <!-- For Joda Time -->
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>${joda-time.version}</version>
-        </dependency>
+
         <!-- https://mvnrepository.com/artifact/xalan/xalan -->
         <dependency>
             <groupId>xalan</groupId>
@@ -476,12 +399,7 @@
             <scope>test</scope>
         </dependency>
         <!-- For Commons IO -->
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commons-io.version}</version>
-            <scope>test</scope>
-        </dependency>
+
         <!-- For JUnit Jupiter -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
