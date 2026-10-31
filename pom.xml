@@ -59,6 +59,15 @@
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
           </repository>
     </distributionManagement>
+    <repositories>
+        <repository>
+            <id>shibboleth-releases</id>
+            <url>https://build.shibboleth.net/maven/releases/</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+    </repositories>
+
     
     <build>
 
@@ -787,7 +796,7 @@
         
         <!-- https://github.com/easy-4-java/shiro-biz-spring-boot-starter -->
         <dependency>
-            <groupId>io.github.easy4j</groupId>
+            <groupId>com.github.hiwepy</groupId>
             <artifactId>shiro-biz-spring-boot-starter</artifactId>
             <version>${spring-boot-starter-shiro-biz.version}</version>
         </dependency>
