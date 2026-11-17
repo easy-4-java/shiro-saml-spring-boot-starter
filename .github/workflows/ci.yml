@@ -43,7 +43,7 @@ jobs:
           cache: maven
 
       - name: Build and verify
-        run: mvn -B --no-transfer-progress clean verify
+        run: mvn -s .github/maven-settings.xml -B --no-transfer-progress clean verify
 
       - name: Upload surefire reports
         if: always()
