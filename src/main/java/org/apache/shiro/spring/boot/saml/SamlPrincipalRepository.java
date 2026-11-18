@@ -18,9 +18,7 @@ package org.apache.shiro.spring.boot.saml;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.biz.authz.principal.ShiroPrincipalRepositoryImpl;
-import org.apache.shiro.spring.boot.saml.token.SamlToken;
 
 /**
  * SAML 1.0 Principal Repository
@@ -28,20 +26,12 @@ import org.apache.shiro.spring.boot.saml.token.SamlToken;
  */
 public class SamlPrincipalRepository extends ShiroPrincipalRepositoryImpl {
 
+	/**
+	 * Rejects unverified input. Applications may supply a repository backed by
+	 * assertion validation and an identity provider trust configuration.
+	 */
 	@Override
 	public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-		
-		SamlToken samlToken = (SamlToken) token;
-		
-		SamlPayloadPrincipal principal = new SamlPayloadPrincipal(samlToken.getSAMLRequest());
-		/*
-		principal.setUserid(payload.getClientId());
-		principal.setUserkey(payload.getClientId());
-		principal.setRoles(Sets.newHashSet(StringUtils.tokenizeToStringArray(payload.getRoles())));
-		principal.setPerms(Sets.newHashSet(StringUtils.tokenizeToStringArray(payload.getPerms())));
-		*/
-		return new SimpleAuthenticationInfo(principal, samlToken.getCredentials(), "SAML");
-		
+		throw new AuthenticationException("SAML assertion validation is not configured.");
 	}
-	
 }

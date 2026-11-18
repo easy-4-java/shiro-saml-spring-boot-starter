@@ -112,7 +112,7 @@ public class AuthnRequestUtils {
 	 */
 	public static AuthnRequest createRequest(String idpDestinationUrl, String acsUrl, String spEntityId,
 			AuthnContextClassRef authnContextClassRef, RequestedAuthnContext requestedAuthnContext, boolean forceAuthn) {
-		return createRequest(idpDestinationUrl, acsUrl, spEntityId, authnContextClassRef, null, forceAuthn);
+		return createRequest(idpDestinationUrl, acsUrl, forceAuthn, spEntityId, authnContextClassRef, requestedAuthnContext);
 	}
 
 	/**
@@ -251,7 +251,7 @@ public class AuthnRequestUtils {
 		String messageXML = requestWriter.toString();
 		System.out.println(messageXML);
 		
-		Document document = asDOMDocument(authnRequest);
+		Document document = authDOM.getOwnerDocument();
 		DOMSource source=new DOMSource(document);
 		TransformerFactory tf = TransformerFactory.newInstance();
 		Transformer former=tf.newTransformer();

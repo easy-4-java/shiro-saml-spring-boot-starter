@@ -59,8 +59,8 @@ import org.springframework.context.annotation.Configuration;
 @AutoConfigureAfter(ShiroEhCache2CacheConfiguration.class)
 @ConditionalOnWebApplication
 @ConditionalOnClass({AuthnContextClassRef.class, RequestedAuthnContext.class })
-@ConditionalOnProperty(prefix = ShiroSamlProperties.PREFIX, value = "enabled", havingValue = "true")
-@EnableConfigurationProperties({ ShiroBizProperties.class })
+@ConditionalOnProperty(prefix = ShiroSaml2Properties.PREFIX, value = "enabled", havingValue = "true")
+@EnableConfigurationProperties({ ShiroBizProperties.class, ShiroSaml2Properties.class })
 public class ShiroSaml2WebAutoConfiguration extends AbstractShiroWebConfiguration {
 	
 	@Autowired
@@ -93,7 +93,7 @@ public class ShiroSaml2WebAutoConfiguration extends AbstractShiroWebConfiguratio
 
 	@Bean
 	@ConditionalOnMissingBean
-	protected AuthnContextClassRef authnContextClassRef(ShiroSamlProperties properties) {
+	protected AuthnContextClassRef authnContextClassRef(ShiroSaml2Properties properties) {
 		AuthnContextClassRef passwordAuthnContextClassRef = new AuthnContextClassRefBuilder().buildObject();
 		passwordAuthnContextClassRef.setAuthnContextClassRef(AuthnContext.PASSWORD_AUTHN_CTX);
 		return passwordAuthnContextClassRef;
@@ -125,7 +125,7 @@ public class ShiroSaml2WebAutoConfiguration extends AbstractShiroWebConfiguratio
 	
 	@Bean
 	@ConditionalOnMissingBean
-	protected RequestedAuthnContext requestedAuthnContext(AuthnContextClassRef authnContextClassRef, ShiroSamlProperties properties) {
+	protected RequestedAuthnContext requestedAuthnContext(AuthnContextClassRef authnContextClassRef, ShiroSaml2Properties properties) {
 
 		RequestedAuthnContext requestedAuthnContext = new RequestedAuthnContextBuilder().buildObject();
 		
