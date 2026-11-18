@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, hiwepy (https://github.com/easy-4-java).
+ * Copyright (c) 2018, hiwepy (https://github.com/hiwepy).
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -18,34 +18,21 @@ package org.apache.shiro.spring.boot.saml;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.biz.authz.principal.ShiroPrincipalRepositoryImpl;
-import org.apache.shiro.biz.utils.StringUtils;
-import org.apache.shiro.spring.boot.saml.token.Saml2Token;
 
-import com.google.common.collect.Sets;
 
 /**
  * SMAL 2.0 Principal Repository
- * @author 		： <a href="https://github.com/easy-4-java">hiwepy</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  */
 public class Saml2PrincipalRepository extends ShiroPrincipalRepositoryImpl {
     
+	/**
+	 * Rejects unverified input. Applications may supply a repository backed by
+	 * assertion validation and an identity provider trust configuration.
+	 */
 	@Override
 	public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-		
-		Saml2Token saml2Token = (Saml2Token) token;
-		
-		Saml2PayloadPrincipal principal = new Saml2PayloadPrincipal(saml2Token.getSAMLRequest());
-		
-		/*
-		principal.setUserid(payload.getClientId());
-		principal.setUserkey(payload.getClientId());
-		principal.setRoles(Sets.newHashSet(StringUtils.tokenizeToStringArray(payload.getRoles())));
-		principal.setPerms(Sets.newHashSet(StringUtils.tokenizeToStringArray(payload.getPerms())));
-		*/
-		return new SimpleAuthenticationInfo(principal, saml2Token.getCredentials(), "SAML2");
-		
+		throw new AuthenticationException("SAML assertion validation is not configured.");
 	}
-	
 }

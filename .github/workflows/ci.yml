@@ -14,9 +14,9 @@ name: CI
 
 on:
   push:
-    branches: [2.3.x, 2.7.x, 3.0.x, 3.1.x, 3.2.x, 3.3.x, 3.4.x, 3.5.x, 4.0.x, 4.1.x, master, main]
+    branches: [2.3.x, 2.7.x, 3.0.x, 3.1.x, 3.2.x, 3.3.x, 3.4.x, 3.5.x, 4.0.x, 4.1.x, master, main, 'test/**']
   pull_request:
-    branches: [2.3.x, 2.7.x, 3.0.x, 3.1.x, 3.2.x, 3.3.x, 3.4.x, 3.5.x, 4.0.x, 4.1.x, master, main]
+    branches: [2.3.x, 2.7.x, 3.0.x, 3.1.x, 3.2.x, 3.3.x, 3.4.x, 3.5.x, 4.0.x, 4.1.x, master, main, 'test/**']
   workflow_dispatch:
 
 permissions:
@@ -42,8 +42,47 @@ jobs:
           java-version: ${{ matrix.java }}
           cache: maven
 
+      - name: Configure Maven repositories
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          MAVEN_SETTINGS_XML: ${{ secrets.MAVEN_SETTINGS_XML }}
+        run: |
+          install -d -m 700 "$HOME/.m2"
+          umask 077
+          python3 - <<'PYTHON'
+          import os
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          settings = ET.fromstring(os.environ["MAVEN_SETTINGS_XML"])
+          ns = settings.tag.partition("}")[0] + "}" if settings.tag.startswith("{") else ""
+          if ns:
+              ET.register_namespace("", ns[1:-1])
+          mirrors = settings.find(ns + "mirrors")
+          if mirrors is None:
+              mirrors = ET.SubElement(settings, ns + "mirrors")
+          for mirror in mirrors.findall(ns + "mirror"):
+              mirror_of = mirror.find(ns + "mirrorOf")
+              if mirror_of is not None and mirror_of.text:
+                  rules = mirror_of.text.split(",")
+                  if "*" in rules and "!shibboleth-releases" not in rules:
+                      mirror_of.text += ",!shibboleth-releases"
+          central = ET.Element(ns + "mirror")
+          for key, value in {
+              "id": "central-https",
+              "mirrorOf": "central",
+              "url": "https://repo.maven.apache.org/maven2/"
+          }.items():
+              ET.SubElement(central, ns + key).text = value
+          for mirror in mirrors.findall(ns + "mirror"):
+              if mirror.findtext(ns + "id") == "central-https":
+                  mirrors.remove(mirror)
+          mirrors.insert(0, central)
+          ET.ElementTree(settings).write(Path.home() / ".m2/settings.xml", encoding="utf-8")
+          PYTHON
+
       - name: Build and verify
-        run: mvn -B --no-transfer-progress clean verify
+        run: mvn -B -U --no-transfer-progress clean verify
 
       - name: Upload surefire reports
         if: always()
