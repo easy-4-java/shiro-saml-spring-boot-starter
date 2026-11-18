@@ -251,7 +251,7 @@ public class AuthnRequestUtils {
 		String messageXML = requestWriter.toString();
 		System.out.println(messageXML);
 		
-		Document document = asDOMDocument(authnRequest);
+		Document document = authDOM.getOwnerDocument();
 		DOMSource source=new DOMSource(document);
 		TransformerFactory tf = TransformerFactory.newInstance();
 		Transformer former=tf.newTransformer();

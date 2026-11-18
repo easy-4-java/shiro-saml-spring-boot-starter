@@ -19,17 +19,18 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.biz.authz.principal.ShiroPrincipal;
-import org.apache.shiro.biz.utils.StringUtils;
-import org.apache.shiro.biz.utils.WebUtils;
+import org.springframework.util.StringUtils;
+import org.apache.shiro.biz.utils.WebUtils2;
+import org.apache.shiro.web.util.WebUtils;
 import org.apache.shiro.biz.web.filter.authc.TrustableRestAuthenticatingFilter;
 import org.apache.shiro.biz.web.filter.authc.listener.LoginListener;
 import org.apache.shiro.spring.boot.saml.exception.ExpiredSamlException;
@@ -104,7 +105,7 @@ public class SamlAuthenticatingFilter extends TrustableRestAuthenticatingFilter 
 				if (LOG.isTraceEnabled()) {
 					LOG.trace(mString);
 				}
-				WebUtils.getHttpResponse(response).setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				WebUtils.toHttp(response).setStatus(HttpServletResponse.SC_BAD_REQUEST);
 				JSONObject.writeJSONString(response.getWriter(), mString);
 				return false;
 			}
@@ -170,7 +171,7 @@ public class SamlAuthenticatingFilter extends TrustableRestAuthenticatingFilter 
 		
 		LOG.error("Host {} JWT Authentication Failure : {}", getHost(request), e.getMessage());
 		
-		//WebUtils.getHttpResponse(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		//WebUtils.toHttp(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		// 响应异常状态信息
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("status", "fail");
@@ -204,7 +205,7 @@ public class SamlAuthenticatingFilter extends TrustableRestAuthenticatingFilter 
 	}
 	
 	protected AuthenticationToken createSamlToken(ServletRequest request, ServletResponse response) {
-		String host = WebUtils.getRemoteAddr(request);
+		String host = WebUtils2.getRemoteAddr(request);
 		String SAMLRequest = getSAMLRequest(request);
 		return new SamlToken(host, SAMLRequest, isRememberMe(request));
 	}
