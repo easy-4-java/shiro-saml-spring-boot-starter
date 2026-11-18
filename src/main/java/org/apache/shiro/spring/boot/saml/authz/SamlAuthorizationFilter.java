@@ -11,8 +11,9 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.biz.utils.StringUtils;
-import org.apache.shiro.biz.utils.WebUtils;
+import org.springframework.util.StringUtils;
+import org.apache.shiro.biz.utils.WebUtils2;
+import org.apache.shiro.web.util.WebUtils;
 import org.apache.shiro.biz.web.filter.authz.AbstracAuthorizationFilter;
 import org.apache.shiro.spring.boot.saml.exception.ExpiredSamlException;
 import org.apache.shiro.spring.boot.saml.exception.IncorrectSamlException;
@@ -26,7 +27,7 @@ import com.alibaba.fastjson.JSONObject;
 
 /**
  * SAML 1.x 授权 (authorization)过滤器
- * @author ： <a href="https://github.com/easy-4-java">hiwepy</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  */
 public class SamlAuthorizationFilter extends AbstracAuthorizationFilter {
 
@@ -90,7 +91,7 @@ public class SamlAuthorizationFilter extends AbstracAuthorizationFilter {
 
 		LOG.error("Host {} JWT Authentication Failure : {}", getHost(request), e.getMessage());
 
-		//WebUtils.getHttpResponse(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		//WebUtils.toHttp(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		// 响应异常状态信息
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("status", "fail");
@@ -117,7 +118,7 @@ public class SamlAuthorizationFilter extends AbstracAuthorizationFilter {
 	}
 
 	protected AuthenticationToken createSamlToken(ServletRequest request, ServletResponse response) {
-		String host = WebUtils.getRemoteAddr(request);
+		String host = WebUtils2.getRemoteAddr(request);
 		String jwtToken = getSAMLRequest(request);
 		return new SamlToken(host, jwtToken, true);
 	}

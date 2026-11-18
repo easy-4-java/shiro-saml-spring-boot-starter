@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, hiwepy (https://github.com/easy-4-java).
+ * Copyright (c) 2018, hiwepy (https://github.com/hiwepy).
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -54,7 +54,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * @author ： <a href="https://github.com/easy-4-java">hiwepy</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * https://www.jianshu.com/p/d041935641b4
  * https://www.jianshu.com/p/6f61fa7be0b6
  * https://www.jianshu.com/p/6c72408fa480
@@ -91,7 +91,7 @@ public class AuthnRequestUtils {
 	
 	/**
 	 * 
-	 * @author ： <a href="https://github.com/easy-4-java">hiwepy</a>
+	 * @author <a href="https://github.com/loong10k">Loong Wan</a>
 	 * @param idpDestinationUrl
 	 * @param acsUrl
 	 * @param spEntityId
@@ -102,7 +102,7 @@ public class AuthnRequestUtils {
 	}
 
 	/**
-	 * @author ： <a href="https://github.com/easy-4-java">hiwepy</a>
+	 * @author <a href="https://github.com/loong10k">Loong Wan</a>
 	 * @param idpDestinationUrl
 	 * @param acsUrl
 	 * @param spEntityId
@@ -112,12 +112,12 @@ public class AuthnRequestUtils {
 	 */
 	public static AuthnRequest createRequest(String idpDestinationUrl, String acsUrl, String spEntityId,
 			AuthnContextClassRef authnContextClassRef, RequestedAuthnContext requestedAuthnContext, boolean forceAuthn) {
-		return createRequest(idpDestinationUrl, acsUrl, spEntityId, authnContextClassRef, null, forceAuthn);
+		return createRequest(idpDestinationUrl, acsUrl, forceAuthn, spEntityId, authnContextClassRef, requestedAuthnContext);
 	}
 
 	/**
 	 * 
-	 * @author 		： <a href="https://github.com/easy-4-java">hiwepy</a>
+	 * @author <a href="https://github.com/loong10k">Loong Wan</a>
 	 * @param destinationURL
 	 * @param assertionConsumerServiceURL
 	 * @param forceAuthn				: whether the IdP should force the user to reauthenticate
@@ -155,7 +155,7 @@ public class AuthnRequestUtils {
 	/**
 	 * 
 	 * 创建AutheRequest对象
-	 * @author 		： <a href="https://github.com/easy-4-java">hiwepy</a>
+	 * @author <a href="https://github.com/loong10k">Loong Wan</a>
 	 * @param destinationURL				：	
 	 * @param assertionConsumerServiceURL	：
 	 * @param forceAuthn 					：whether the IdP should force the user to reauthenticate
@@ -251,7 +251,7 @@ public class AuthnRequestUtils {
 		String messageXML = requestWriter.toString();
 		System.out.println(messageXML);
 		
-		Document document = asDOMDocument(authnRequest);
+		Document document = authDOM.getOwnerDocument();
 		DOMSource source=new DOMSource(document);
 		TransformerFactory tf = TransformerFactory.newInstance();
 		Transformer former=tf.newTransformer();
