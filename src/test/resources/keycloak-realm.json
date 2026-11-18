@@ -1,0 +1,30 @@
+{
+  "realm": "saml-servlet-it",
+  "enabled": true,
+  "sslRequired": "none",
+  "clients": [{
+    "clientId": "urn:easy4j:test:sp",
+    "enabled": true,
+    "protocol": "saml",
+    "redirectUris": ["${ACS}"],
+    "attributes": {
+      "saml_idp_initiated_sso_url_name": "servlet",
+      "saml_assertion_consumer_url_post": "${ACS}",
+      "saml.force.post.binding": "true",
+      "saml.authnstatement": "true",
+      "saml.client.signature": "false",
+      "saml.server.signature": "false",
+      "saml.assertion.signature": "true",
+      "saml.signature.algorithm": "RSA_SHA256",
+      "saml_name_id_format": "username"
+    }
+  }],
+  "users": [{
+    "username": "external-idp-user",
+    "firstName": "External",
+    "lastName": "Test",
+    "email": "saml-test@example.test",
+    "enabled": true,
+    "credentials": [{"type": "password", "value": "local-idp-test-password", "temporary": false}]
+  }]
+}

@@ -147,6 +147,17 @@ mvn clean verify
 mvn -pl shiro-saml-spring-boot-starter -am test
 ```
 
+### 外部 SAML IdP 联调
+
+Starter 使用 JDK 8，独立的 Keycloak 26.8.2 进程使用 JDK 21：
+
+```bash
+JAVA_HOME=/path/to/jdk8 KEYCLOAK_JAVA_HOME=/path/to/jdk21 \
+  bash src/test/scripts/verify-keycloak.sh clean verify
+```
+
+Maven 配置需包含项目使用的仓库及 Shibboleth releases 仓库，以解析 OpenSAML 3.4.2。可传入 `-s /path/to/settings.xml`。脚本会下载并校验 Keycloak 归档，也可通过 `KEYCLOAK_ARCHIVE` 使用缓存。两个服务仅监听回环地址。测试从 Keycloak 元数据获取验签公钥，以临时账号登录，将签名断言提交给嵌入式 Tomcat，并验证认证成功及篡改签名主体后被拒绝。此测试由脚本准备独立 IdP 后执行。
+
 ## 10. 排障
 
 | 症状 | 诊断 | 解决 |

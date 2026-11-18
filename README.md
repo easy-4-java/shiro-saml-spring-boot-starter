@@ -147,6 +147,17 @@ mvn clean verify
 mvn -pl shiro-saml-spring-boot-starter -am test
 ```
 
+### External SAML IdP integration test
+
+Run the same JDK 8 verification against a separate Keycloak 26.8.2 process running on JDK 21:
+
+```bash
+JAVA_HOME=/path/to/jdk8 KEYCLOAK_JAVA_HOME=/path/to/jdk21 \
+  bash src/test/scripts/verify-keycloak.sh clean verify
+```
+
+Use the project's Maven repository settings, including the Shibboleth releases repository, to resolve OpenSAML 3.4.2. Pass `-s /path/to/settings.xml` to select those settings. The script downloads and verifies the Keycloak archive, or accepts a cached archive through `KEYCLOAK_ARCHIVE`. Both servers bind to loopback. The test obtains Keycloak's signing key from its metadata, logs in as a disposable user, and submits the signed assertion to embedded Tomcat. It checks successful authentication and rejection after modification of the signed subject. The test runs only when the script provisions Keycloak.
+
 ## 10. Troubleshooting
 
 | Symptom | Diagnosis | Resolution |
