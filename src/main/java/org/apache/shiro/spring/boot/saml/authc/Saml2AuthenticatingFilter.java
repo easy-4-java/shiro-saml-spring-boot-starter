@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, hiwepy (https://github.com/easy-4-java).
+ * Copyright (c) 2018, hiwepy (https://github.com/hiwepy).
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -28,14 +28,15 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.biz.authz.principal.ShiroPrincipal;
-import org.apache.shiro.biz.utils.StringUtils;
-import org.apache.shiro.biz.utils.WebUtils;
+import org.springframework.util.StringUtils;
+import org.apache.shiro.biz.utils.WebUtils2;
+import org.apache.shiro.web.util.WebUtils;
 import org.apache.shiro.biz.web.filter.authc.TrustableRestAuthenticatingFilter;
 import org.apache.shiro.biz.web.filter.authc.listener.LoginListener;
 import org.apache.shiro.spring.boot.saml.exception.ExpiredSamlException;
 import org.apache.shiro.spring.boot.saml.exception.IncorrectSamlException;
 import org.apache.shiro.spring.boot.saml.exception.InvalidSamlToken;
-import org.apache.shiro.spring.boot.saml.token.SamlToken;
+import org.apache.shiro.spring.boot.saml.token.Saml2Token;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,7 @@ import com.alibaba.fastjson.JSONObject;
 
 /**
  * SAML 2.x 认证 (authentication)过滤器
- * @author ： <a href="https://github.com/easy-4-java">hiwepy</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  */
 public class Saml2AuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 
@@ -104,7 +105,7 @@ public class Saml2AuthenticatingFilter extends TrustableRestAuthenticatingFilter
 				if (LOG.isTraceEnabled()) {
 					LOG.trace(mString);
 				}
-				WebUtils.getHttpResponse(response).setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				WebUtils.toHttp(response).setStatus(HttpServletResponse.SC_BAD_REQUEST);
 				JSONObject.writeJSONString(response.getWriter(), mString);
 				return false;
 			}
@@ -170,7 +171,7 @@ public class Saml2AuthenticatingFilter extends TrustableRestAuthenticatingFilter
 		
 		LOG.error("Host {} JWT Authentication Failure : {}", getHost(request), e.getMessage());
 		
-		//WebUtils.getHttpResponse(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		//WebUtils.toHttp(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		// 响应异常状态信息
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("status", "fail");
@@ -203,10 +204,15 @@ public class Saml2AuthenticatingFilter extends TrustableRestAuthenticatingFilter
 		return false;
 	}
 	
+	@Override
+	protected AuthenticationToken createToken(ServletRequest request, ServletResponse response) {
+		return createSamlToken(request, response);
+	}
+
 	protected AuthenticationToken createSamlToken(ServletRequest request, ServletResponse response) {
-		String host = WebUtils.getRemoteAddr(request);
+		String host = WebUtils2.getRemoteAddr(request);
 		String SAMLRequest = getSAMLRequest(request);
-		return new SamlToken(host, SAMLRequest, isRememberMe(request));
+		return new Saml2Token(host, SAMLRequest, isRememberMe(request));
 	}
 
     protected boolean isSamlSubmission(ServletRequest request, ServletResponse response) {

@@ -42,8 +42,30 @@ jobs:
           java-version: ${{ matrix.java }}
           cache: maven
 
+      - name: Configure Maven repositories
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          MAVEN_SETTINGS_XML: ${{ secrets.MAVEN_SETTINGS_XML }}
+        run: |
+          install -d -m 700 "$HOME/.m2"
+          umask 077
+          python3 - <<'PYTHON'
+          import os
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          settings = ET.fromstring(os.environ["MAVEN_SETTINGS_XML"])
+          for mirror in settings.findall(".//{*}mirror"):
+              mirror_of = mirror.find("{*}mirrorOf")
+              if mirror_of is not None and mirror_of.text:
+                  rules = mirror_of.text.split(",")
+                  if "*" in rules and "!shibboleth-releases" not in rules:
+                      mirror_of.text += ",!shibboleth-releases"
+          ET.ElementTree(settings).write(Path.home() / ".m2/settings.xml", encoding="utf-8")
+          PYTHON
+
       - name: Build and verify
-        run: mvn -s .github/maven-settings.xml -B --no-transfer-progress clean verify
+        run: mvn -B --no-transfer-progress clean verify
 
       - name: Upload surefire reports
         if: always()

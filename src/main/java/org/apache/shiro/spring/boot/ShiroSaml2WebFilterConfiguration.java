@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, hiwepy (https://github.com/easy-4-java).
+ * Copyright (c) 2018, hiwepy (https://github.com/hiwepy).
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -20,7 +20,7 @@ import java.util.List;
 import org.apache.shiro.authc.credential.AllowAllCredentialsMatcher;
 import org.apache.shiro.biz.realm.AbstractAuthorizingRealm;
 import org.apache.shiro.biz.realm.AuthorizingRealmListener;
-import org.apache.shiro.biz.spring.ShiroFilterProxyFactoryBean;
+import org.apache.shiro.spring.boot.biz.ShiroBizFilterFactoryBean;
 import org.apache.shiro.biz.web.filter.authc.AuthenticatingFailureCounter;
 import org.apache.shiro.biz.web.filter.authc.captcha.CaptchaResolver;
 import org.apache.shiro.biz.web.filter.authc.listener.LoginListener;
@@ -68,7 +68,7 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnWebApplication
 @ConditionalOnClass({AuthnContextClassRef.class, RequestedAuthnContext.class})
 @ConditionalOnProperty(prefix = ShiroSaml2Properties.PREFIX, value = "enabled", havingValue = "true")
-@EnableConfigurationProperties({ ShiroSaml2Properties.class, ShiroBizProperties.class, ServerProperties.class })
+@EnableConfigurationProperties({ ShiroSaml2Properties.class, ShiroBizProperties.class, ServerProperties.class, ShiroKaptchaProperties.class })
 public class ShiroSaml2WebFilterConfiguration extends AbstractShiroWebFilterConfiguration implements ApplicationContextAware {
 
 	private ApplicationContext applicationContext;
@@ -82,13 +82,14 @@ public class ShiroSaml2WebFilterConfiguration extends AbstractShiroWebFilterConf
 	
 	@Bean
 	@ConditionalOnMissingBean
-	public Saml2PrincipalRepository samlPrincipalRepository() {
+	public static Saml2PrincipalRepository samlPrincipalRepository() {
 		return new Saml2PrincipalRepository();
 	}
 	
 	@Bean("samlRealm")
 	@ConditionalOnMissingBean(name = "samlRealm")
-	public Realm samlRealm(Saml2PrincipalRepository samlPrincipalRepository,
+	public static Realm samlRealm(Saml2PrincipalRepository samlPrincipalRepository,
+			ShiroBizProperties bizProperties,
 			@Autowired(required = false) List<AuthorizingRealmListener> realmsListeners) {
 		AbstractAuthorizingRealm authzRealm = null;
 		if (bizProperties.isSessionStateless()) {
@@ -178,11 +179,12 @@ public class ShiroSaml2WebFilterConfiguration extends AbstractShiroWebFilterConf
 	/**
 	 * 权限控制过滤器 ：权限过滤链的入口（仅是FactoryBean需要引用）
 	 */
-	@Bean
+	@Bean(autowireCandidate = false)
     @Override
 	protected ShiroFilterFactoryBean shiroFilterFactoryBean() {
 
-		ShiroFilterFactoryBean filterFactoryBean = new ShiroFilterProxyFactoryBean();
+		ShiroBizFilterFactoryBean filterFactoryBean = new ShiroBizFilterFactoryBean();
+		filterFactoryBean.setStaticSecurityManagerEnabled(bizProperties.isStaticSecurityManagerEnabled());
 		
 		// 登录地址：会话不存在时访问的地址
 		filterFactoryBean.setLoginUrl(bizProperties.getLoginUrl());
