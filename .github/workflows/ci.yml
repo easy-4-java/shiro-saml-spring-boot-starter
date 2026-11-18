@@ -55,17 +55,34 @@ jobs:
           from pathlib import Path
 
           settings = ET.fromstring(os.environ["MAVEN_SETTINGS_XML"])
-          for mirror in settings.findall(".//{*}mirror"):
-              mirror_of = mirror.find("{*}mirrorOf")
+          ns = settings.tag.partition("}")[0] + "}" if settings.tag.startswith("{") else ""
+          if ns:
+              ET.register_namespace("", ns[1:-1])
+          mirrors = settings.find(ns + "mirrors")
+          if mirrors is None:
+              mirrors = ET.SubElement(settings, ns + "mirrors")
+          for mirror in mirrors.findall(ns + "mirror"):
+              mirror_of = mirror.find(ns + "mirrorOf")
               if mirror_of is not None and mirror_of.text:
                   rules = mirror_of.text.split(",")
                   if "*" in rules and "!shibboleth-releases" not in rules:
                       mirror_of.text += ",!shibboleth-releases"
+          central = ET.Element(ns + "mirror")
+          for key, value in {
+              "id": "central-https",
+              "mirrorOf": "central",
+              "url": "https://repo.maven.apache.org/maven2/"
+          }.items():
+              ET.SubElement(central, ns + key).text = value
+          for mirror in mirrors.findall(ns + "mirror"):
+              if mirror.findtext(ns + "id") == "central-https":
+                  mirrors.remove(mirror)
+          mirrors.insert(0, central)
           ET.ElementTree(settings).write(Path.home() / ".m2/settings.xml", encoding="utf-8")
           PYTHON
 
       - name: Build and verify
-        run: mvn -B --no-transfer-progress clean verify
+        run: mvn -B -U --no-transfer-progress clean verify
 
       - name: Upload surefire reports
         if: always()
