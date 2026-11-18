@@ -77,8 +77,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ShiroSaml2EmbeddedServletTest {
 
     private static final String IDP = "https://idp.example.test/metadata";
-    private static final String SP = "urn:easy4j:test:sp";
-    private static final String CALLBACK = "/callback";
+    static final String SP = "urn:easy4j:test:sp";
+    static final String CALLBACK = "/callback";
 
     @Test
     void embeddedTomcatAcceptsTrustedAssertionAndRejectsUnsignedUntrustedAndExpiredAssertions() throws Exception {
@@ -87,18 +87,9 @@ class ShiroSaml2EmbeddedServletTest {
         generator.initialize(2048);
         KeyPair idp = generator.generateKeyPair();
         KeyPair unrelatedKey = generator.generateKeyPair();
-        try (ServletWebServerApplicationContext context = (ServletWebServerApplicationContext)
-                new SpringApplicationBuilder(FixtureApplication.class)
-                        .web(WebApplicationType.SERVLET)
-                        .run("--server.port=0", "--server.address=127.0.0.1",
-                                "--shiro.enabled=true", "--shiro.saml2.enabled=true",
-                                "--shiro.static-security-manager-enabled=false", "--shiro.session-stateless=false",
-                                "--shiro.login-url=" + CALLBACK,
-                                "--shiro.filter-chain-definition-map.[/callback]=authc")) {
-            String recipient = "http://127.0.0.1:" + context.getWebServer().getPort() + CALLBACK;
-            context.getBean(FixturePrincipalRepository.class).configure(idp.getPublic(), recipient);
-            FilterRegistrationBean<?> authc = context.getBean("authc", FilterRegistrationBean.class);
-            ((Saml2AuthenticatingFilter) authc.getFilter()).setAuthorizationParamName("SAMLResponse");
+        try (ServletWebServerApplicationContext context = startServlet()) {
+            String recipient = callbackUrl(context);
+            context.getBean(FixturePrincipalRepository.class).configure(idp.getPublic(), recipient, IDP);
 
             HttpResult accepted = post(recipient, response(recipient, SP, DateTime.now().plusMinutes(2), idp));
             assertThat(accepted.status).isEqualTo(200);
@@ -111,6 +102,24 @@ class ShiroSaml2EmbeddedServletTest {
             assertThat(post(recipient, response(recipient, SP, DateTime.now().minusMinutes(1), idp)).status).isEqualTo(401);
             assertThat(post(recipient, response(recipient, "urn:other:sp", DateTime.now().plusMinutes(2), idp)).status).isEqualTo(401);
         }
+    }
+
+    static ServletWebServerApplicationContext startServlet() {
+        ServletWebServerApplicationContext context = (ServletWebServerApplicationContext)
+                new SpringApplicationBuilder(FixtureApplication.class)
+                        .web(WebApplicationType.SERVLET)
+                        .run("--server.port=0", "--server.address=127.0.0.1",
+                                "--shiro.enabled=true", "--shiro.saml2.enabled=true",
+                                "--shiro.static-security-manager-enabled=false", "--shiro.session-stateless=false",
+                                "--shiro.login-url=" + CALLBACK,
+                                "--shiro.filter-chain-definition-map.[/callback]=authc");
+        FilterRegistrationBean<?> authc = context.getBean("authc", FilterRegistrationBean.class);
+        ((Saml2AuthenticatingFilter) authc.getFilter()).setAuthorizationParamName("SAMLResponse");
+        return context;
+    }
+
+    static String callbackUrl(ServletWebServerApplicationContext context) {
+        return "http://127.0.0.1:" + context.getWebServer().getPort() + CALLBACK;
     }
 
     private static String response(String recipient, String audienceValue, DateTime expires, KeyPair signer) throws Exception {
@@ -259,16 +268,18 @@ class ShiroSaml2EmbeddedServletTest {
     }
 
     /**
-     * Test SP trust fixture. This only authenticates responses generated for this test and
+     * Test SP trust fixture. This only authenticates responses addressed to this test SP and
      * does not supply production replay protection or AuthnRequest correlation.
      */
     static class FixturePrincipalRepository extends Saml2PrincipalRepository {
         private PublicKey key;
         private String recipient;
+        private String issuer;
 
-        void configure(PublicKey key, String recipient) {
+        void configure(PublicKey key, String recipient, String issuer) {
             this.key = key;
             this.recipient = recipient;
+            this.issuer = issuer;
         }
 
         @Override
@@ -290,7 +301,7 @@ class ShiroSaml2EmbeddedServletTest {
                 new SAMLSignatureProfileValidator().validate(assertion.getSignature());
                 SignatureValidator.validate(assertion.getSignature(), new BasicCredential(key));
                 Conditions conditions = assertion.getConditions();
-                if (!IDP.equals(assertion.getIssuer().getValue())
+                if (!issuer.equals(assertion.getIssuer().getValue())
                         || conditions.getNotBefore().isAfterNow() || !conditions.getNotOnOrAfter().isAfterNow()
                         || conditions.getAudienceRestrictions().size() != 1
                         || conditions.getAudienceRestrictions().get(0).getAudiences().stream()

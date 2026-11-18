@@ -667,6 +667,13 @@
     </dependencyManagement>
     
     <dependencies>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.24.1</version>
+            <scope>test</scope>
+        </dependency>
+
         
         
         <!-- For Servlet Api -->
