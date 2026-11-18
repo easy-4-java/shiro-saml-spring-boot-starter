@@ -6,7 +6,7 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.biz.realm.AbstractAuthorizingRealm;
 import org.apache.shiro.spring.boot.saml.token.SamlToken;
-import org.apache.shiro.spring.boot.saml.Saml2PayloadPrincipal;
+import org.apache.shiro.biz.authz.principal.ShiroPrincipal;
 import org.apache.shiro.subject.PrincipalCollection;
 
 /**
@@ -26,7 +26,7 @@ public class SamlStatelessAuthorizingRealm extends AbstractAuthorizingRealm {
 	@Override
 	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
 		
-		Saml2PayloadPrincipal principal = (Saml2PayloadPrincipal) principals.getPrimaryPrincipal();
+		ShiroPrincipal principal = (ShiroPrincipal) principals.getPrimaryPrincipal();
 		
 		SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
 		// 解析角色并设置
