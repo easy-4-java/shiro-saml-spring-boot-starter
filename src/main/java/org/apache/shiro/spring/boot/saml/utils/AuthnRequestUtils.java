@@ -112,7 +112,7 @@ public class AuthnRequestUtils {
 	 */
 	public static AuthnRequest createRequest(String idpDestinationUrl, String acsUrl, String spEntityId,
 			AuthnContextClassRef authnContextClassRef, RequestedAuthnContext requestedAuthnContext, boolean forceAuthn) {
-		return createRequest(idpDestinationUrl, acsUrl, spEntityId, authnContextClassRef, null, forceAuthn);
+		return createRequest(idpDestinationUrl, acsUrl, forceAuthn, spEntityId, authnContextClassRef, requestedAuthnContext);
 	}
 
 	/**

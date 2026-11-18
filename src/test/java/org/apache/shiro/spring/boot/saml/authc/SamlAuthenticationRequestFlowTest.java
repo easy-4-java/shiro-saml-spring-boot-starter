@@ -2,6 +2,8 @@ package org.apache.shiro.spring.boot.saml.authc;
 
 import com.alibaba.fastjson.JSONObject;
 import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.biz.web.filter.authc.listener.LoginListener;
 import org.apache.shiro.biz.authz.principal.ShiroPrincipal;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
@@ -15,8 +17,15 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import java.util.Collections;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,6 +44,9 @@ class SamlAuthenticationRequestFlowTest {
         request.addParameter("SAMLRequest", "callback fixture");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
+        LoginListener listener = mock(LoginListener.class);
+        legacy.setLoginListeners(Collections.singletonList(listener));
+        modern.setLoginListeners(Collections.singletonList(listener));
         ShiroPrincipal principal = new ShiroPrincipal();
         principal.setUserid("fixture-user");
         Subject subject = mock(Subject.class);
@@ -49,6 +61,7 @@ class SamlAuthenticationRequestFlowTest {
         }
         verify(subject).login(argThat(token -> (saml2 ? token instanceof Saml2Token : token instanceof SamlToken)
                 && "callback fixture".equals(token.getCredentials())));
+        verify(listener).onSuccess(any(AuthenticationToken.class), eq(subject), eq(request), eq(response));
         JSONObject body = JSONObject.parseObject(response.getContentAsString());
         assertThat(body.getString("status")).isEqualTo("success");
         assertThat(body.getJSONObject("principal").getString("userid")).isEqualTo("fixture-user");
@@ -107,5 +120,40 @@ class SamlAuthenticationRequestFlowTest {
             assertThat(body.getString("status")).isEqualTo("fail");
             assertThat(body.getString("token")).isEqualTo(categories[index]);
         }
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void statelessRequestAuthenticatesEachCredentialAndStopsOnRejection(boolean saml2) {
+        Subject subject = mock(Subject.class);
+        SamlAuthenticatingFilter legacy = new SamlAuthenticatingFilter() {
+            @Override
+            protected Subject getSubject(ServletRequest request, ServletResponse response) {
+                return subject;
+            }
+        };
+        Saml2AuthenticatingFilter modern = new Saml2AuthenticatingFilter() {
+            @Override
+            protected Subject getSubject(ServletRequest request, ServletResponse response) {
+                return subject;
+            }
+        };
+        legacy.setSessionStateless(true);
+        modern.setSessionStateless(true);
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/protected");
+        request.setServletPath("/protected");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        assertThat(saml2 ? modern.isAccessAllowed(request, response, null) : legacy.isAccessAllowed(request, response, null))
+                .isFalse();
+
+        request.addHeader("Authorization", "stateless fixture");
+        assertThat(saml2 ? modern.isAccessAllowed(request, response, null) : legacy.isAccessAllowed(request, response, null))
+                .isTrue();
+        verify(subject).login(argThat(token -> (saml2 ? token instanceof Saml2Token : token instanceof SamlToken)
+                && "stateless fixture".equals(token.getCredentials())));
+
+        doThrow(new AuthenticationException("rejected by test verifier")).when(subject).login(any(AuthenticationToken.class));
+        assertThat(saml2 ? modern.isAccessAllowed(request, response, null) : legacy.isAccessAllowed(request, response, null))
+                .isFalse();
     }
 }

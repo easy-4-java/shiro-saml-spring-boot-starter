@@ -1,6 +1,16 @@
 package org.apache.shiro.spring.boot.saml.realm;
 
+import io.github.easy4j.jwt.JwtPayload.RolePair;
+import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.biz.authz.principal.ShiroPrincipal;
+import org.apache.shiro.spring.boot.saml.Saml2PayloadPrincipal;
+import org.apache.shiro.spring.boot.saml.SamlPayloadPrincipal;
+import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
+import java.util.Collections;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,5 +68,21 @@ class SamlRealmTest {
         org.apache.shiro.authc.AuthenticationToken token = new org.apache.shiro.spring.boot.saml.token.Saml2Token("host", "request", false);
         // The realm may or may not support this token type depending on its implementation
         assertThat(realm.supports(token)).isNotNull();
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void convertsVerifiedPrincipalRolesAndPermissions(boolean saml2) {
+        ShiroPrincipal principal = saml2 ? new Saml2PayloadPrincipal("verified fixture")
+                : new SamlPayloadPrincipal("verified fixture");
+        principal.setRoles(Collections.singletonList(new RolePair("1", "reader", "Reader")));
+        principal.setPerms(Collections.singleton("report:read"));
+        SimplePrincipalCollection principals = new SimplePrincipalCollection(principal, "samlRealm");
+
+        AuthorizationInfo authorization = saml2 ? new Saml2StatelessAuthorizingRealm().doGetAuthorizationInfo(principals)
+                : new SamlStatelessAuthorizingRealm().doGetAuthorizationInfo(principals);
+
+        assertThat(authorization.getRoles()).containsExactly("reader");
+        assertThat(authorization.getStringPermissions()).containsExactly("report:read");
     }
 }
