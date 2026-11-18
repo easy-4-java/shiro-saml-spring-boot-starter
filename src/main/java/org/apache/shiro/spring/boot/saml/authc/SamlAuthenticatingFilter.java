@@ -204,6 +204,11 @@ public class SamlAuthenticatingFilter extends TrustableRestAuthenticatingFilter 
 		return false;
 	}
 	
+	@Override
+	protected AuthenticationToken createToken(ServletRequest request, ServletResponse response) {
+		return createSamlToken(request, response);
+	}
+
 	protected AuthenticationToken createSamlToken(ServletRequest request, ServletResponse response) {
 		String host = WebUtils2.getRemoteAddr(request);
 		String SAMLRequest = getSAMLRequest(request);

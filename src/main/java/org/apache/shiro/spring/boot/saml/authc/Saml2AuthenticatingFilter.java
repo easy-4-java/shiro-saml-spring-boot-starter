@@ -36,7 +36,7 @@ import org.apache.shiro.biz.web.filter.authc.listener.LoginListener;
 import org.apache.shiro.spring.boot.saml.exception.ExpiredSamlException;
 import org.apache.shiro.spring.boot.saml.exception.IncorrectSamlException;
 import org.apache.shiro.spring.boot.saml.exception.InvalidSamlToken;
-import org.apache.shiro.spring.boot.saml.token.SamlToken;
+import org.apache.shiro.spring.boot.saml.token.Saml2Token;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -204,10 +204,15 @@ public class Saml2AuthenticatingFilter extends TrustableRestAuthenticatingFilter
 		return false;
 	}
 	
+	@Override
+	protected AuthenticationToken createToken(ServletRequest request, ServletResponse response) {
+		return createSamlToken(request, response);
+	}
+
 	protected AuthenticationToken createSamlToken(ServletRequest request, ServletResponse response) {
 		String host = WebUtils2.getRemoteAddr(request);
 		String SAMLRequest = getSAMLRequest(request);
-		return new SamlToken(host, SAMLRequest, isRememberMe(request));
+		return new Saml2Token(host, SAMLRequest, isRememberMe(request));
 	}
 
     protected boolean isSamlSubmission(ServletRequest request, ServletResponse response) {

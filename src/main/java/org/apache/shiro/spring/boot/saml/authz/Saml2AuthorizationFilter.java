@@ -18,7 +18,7 @@ import org.apache.shiro.biz.web.filter.authz.AbstracAuthorizationFilter;
 import org.apache.shiro.spring.boot.saml.exception.ExpiredSamlException;
 import org.apache.shiro.spring.boot.saml.exception.IncorrectSamlException;
 import org.apache.shiro.spring.boot.saml.exception.InvalidSamlToken;
-import org.apache.shiro.spring.boot.saml.token.SamlToken;
+import org.apache.shiro.spring.boot.saml.token.Saml2Token;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,7 +120,7 @@ public class Saml2AuthorizationFilter extends AbstracAuthorizationFilter {
 	protected AuthenticationToken createSamlToken(ServletRequest request, ServletResponse response) {
 		String host = WebUtils2.getRemoteAddr(request);
 		String jwtToken = getSAMLRequest(request);
-		return new SamlToken(host, jwtToken, true);
+		return new Saml2Token(host, jwtToken, true);
 	}
 	
     protected boolean isSamlSubmission(ServletRequest request, ServletResponse response) {

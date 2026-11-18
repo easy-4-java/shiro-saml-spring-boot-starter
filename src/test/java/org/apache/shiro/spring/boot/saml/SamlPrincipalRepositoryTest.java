@@ -1,12 +1,13 @@
 package org.apache.shiro.spring.boot.saml;
 
-import org.apache.shiro.authc.AuthenticationInfo;
+import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.spring.boot.saml.token.SamlToken;
 import org.apache.shiro.spring.boot.saml.token.Saml2Token;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Unit tests for SAML principal repository classes.
@@ -32,20 +33,18 @@ class SamlPrincipalRepositoryTest {
     }
 
     @Test
-    @DisplayName("SamlPrincipalRepository getAuthenticationInfo returns info")
+    @DisplayName("SamlPrincipalRepository rejects a request without a configured assertion validator")
     void testSamlPrincipalRepoGetAuthInfo() {
         SamlPrincipalRepository repo = new SamlPrincipalRepository();
         SamlToken token = new SamlToken("host", "saml-request", false);
-        AuthenticationInfo info = repo.getAuthenticationInfo(token);
-        assertThat(info).isNotNull();
+        assertThrows(AuthenticationException.class, () -> repo.getAuthenticationInfo(token));
     }
 
     @Test
-    @DisplayName("Saml2PrincipalRepository getAuthenticationInfo returns info")
+    @DisplayName("Saml2PrincipalRepository rejects a request without a configured assertion validator")
     void testSaml2PrincipalRepoGetAuthInfo() {
         Saml2PrincipalRepository repo = new Saml2PrincipalRepository();
         Saml2Token token = new Saml2Token("host", "saml2-request", false);
-        AuthenticationInfo info = repo.getAuthenticationInfo(token);
-        assertThat(info).isNotNull();
+        assertThrows(AuthenticationException.class, () -> repo.getAuthenticationInfo(token));
     }
 }
